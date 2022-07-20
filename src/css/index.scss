@@ -1,0 +1,27 @@
+.container {
+
+    background-image: url("../img/vue.jpg");
+
+    width: 200px;
+    height: 500px;
+
+    &-header {
+        .user {
+            &-avatar {
+                width: 100px;
+                height: 100px;
+            }
+
+            &-name {
+            }
+        }
+    }
+
+    &-body {
+        &__list {
+
+            &--item {}
+        }
+    }
+
+}

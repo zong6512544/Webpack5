@@ -1,0 +1,13 @@
+{
+    "manifest_version": 2,
+    "name": "包子工具箱",
+    "description": "This extension demonstrates a browser action with kittens.",
+    "version": "1.0",
+    "permissions": [
+        "https://secure.flickr.com/"
+    ],
+    "browser_action": {
+        "default_icon": "./assets/icon.png",
+        "default_popup": "./dist/index.html"
+    }
+}
