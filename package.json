@@ -5,6 +5,7 @@
   "private": true,
   "devDependencies": {
     "css-loader": "^6.7.1",
+    "css-minimizer-webpack-plugin": "^4.0.0",
     "file-loader": "^6.2.0",
     "html-loader": "^3.1.2",
     "html-webpack-plugin": "^5.5.0",
@@ -19,9 +20,13 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "start": "webpack-dev-server --open --color --progress"
+    "build": "set NODE_ENV=production&& webpack",
+    "build:dev": "set NODE_ENV=development&& webpack",
+    "start": "set NODE_ENV=development&& webpack-dev-server --open --color --progress"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "echarts": "^5.3.3"
+  }
 }

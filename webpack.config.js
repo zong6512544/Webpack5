@@ -1,12 +1,16 @@
 const { resolve, join } = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin'); // 生成一个HTML文件
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");// 这个插件将CSS提取到单独的文件中。它为每个包含CSS的JS文件创建一个CSS文件。它支持按需加载CSS和SourceMaps。// 它构建在新的webpack v5特性之上，需要webpack 5才能工作。
+const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin')
+// 是否开发环境
+const isDevMode = process.env.NODE_ENV !== "production";
+console.log('process.env.NODE_ENV', process.env.NODE_ENV, 'isDevMode', isDevMode)
 // 打包后地---静态资源址/dist/static
 const STATIC_SOURCE_PATH = 'static'
 module.exports = {
     target: 'web',
     // 
-    mode: 'development',
+    mode: isDevMode ? 'development' : 'production', // development production
     // 将编译后的代码映射回原始源代码。
     // 如果一个错误来自于 b.js，source map 就会明确的告诉你
     // 开发环境，追求重新构建速度，同时也要高度还原代码，可选：eval-source-map或eval-cheap-module-source-map，这二者可以自己抉择，后者速度更快、生成的包体积更小，但无法进行行内调试。
@@ -15,12 +19,15 @@ module.exports = {
     //
     entry: {
         main: './src/main.js',
-        other: './src/other.js'
+        other: './src/other.js',
+        test: './src/test.js'
     },
     // 
     output: {
+        // publicPath: '/',
         path: resolve(__dirname, 'dist'), // output 目录对应一个绝对路径
         filename: STATIC_SOURCE_PATH + '/js/[name].[contenthash].bundle.js', // 此选项决定了每个输出 bundle 的名称。这些 bundle 将写入到 output.path 选项指定的目录下。
+        chunkFilename: STATIC_SOURCE_PATH + '/js/[id].bundle.js',
         clean: true // 在每次构建前清理 /dist 文件夹
     },
     // 
@@ -28,10 +35,11 @@ module.exports = {
         rules: [
             // ********************************** css 处理 **********************************************
             {
-                test: /\.scss$/,
+                test: /\.s?css$/,
                 use: [
-                    MiniCssExtractPlugin.loader,// 将CSS提取到单独的文件中
-                    // 'style-loader', // 通过注入一个<style>标签将CSS添加到DOM中
+                    // TRUE.通过注入一个<style>标签将CSS添加到DOM中
+                    // FALSE.将CSS提取到单独的文件中
+                    isDevMode ? 'style-loader' : MiniCssExtractPlugin.loader,
                     'css-loader',
                     'sass-loader'
                 ]
@@ -95,12 +103,8 @@ module.exports = {
     },
     // 
     plugins: [
-        new MiniCssExtractPlugin({ // 将CSS提取到单独的文件中
-            filename: STATIC_SOURCE_PATH + '/css/[contenthash].css', // 该选项确定每个输出CSS文件的名称。
-            // chunkFilename: '', // 此选项确定非入口块文件的名称。
-        }),
         new HtmlWebpackPlugin({
-            title: '包子 TOOLS', // 要用于生成的HTML文档的标题 
+            title: '包子index', // 要用于生成的HTML文档的标题 
             filename: 'index.html', // 要向其写入HTML的文件。 默认为index.html。 你也可以在这里指定一个子目录(例如:assets/admin.html)。 占位符将被条目名称替换。 也可以是一个函数，例如(entryName) => entryName + '.html'。 
             template: './src/index.html', // 模板的Webpack相对或绝对路径。 默认情况下，它将使用src/index。
             // publicPath: 'auto', // 用于脚本和链接标记的publicPath
@@ -108,10 +112,32 @@ module.exports = {
             // meta: '', // 允许注入元标签。 例如meta: {viewport: 'width=device-width, initial-scale=1, shrink-to-fit=no'} 
             // minify: true // true if mode is 'production', otherwise false
         }),
-    ],
+        new HtmlWebpackPlugin({
+            title: '包子other', // 要用于生成的HTML文档的标题 
+            filename: 'other.html', // 要向其写入HTML的文件。 默认为index.html。 你也可以在这里指定一个子目录(例如:assets/admin.html)。 占位符将被条目名称替换。 也可以是一个函数，例如(entryName) => entryName + '.html'。 
+            template: './src/other.html', // 模板的Webpack相对或绝对路径。 默认情况下，它将使用src/index。
+            favicon: './assets/icon.png', // 将给定的favicon路径添加到输出HTML 
+        }),
+        new HtmlWebpackPlugin({
+            title: 'test', // 要用于生成的HTML文档的标题 
+            filename: 'test.html', // 要向其写入HTML的文件。 默认为index.html。 你也可以在这里指定一个子目录(例如:assets/admin.html)。 占位符将被条目名称替换。 也可以是一个函数，例如(entryName) => entryName + '.html'。 
+            template: './src/test.html', // 模板的Webpack相对或绝对路径。 默认情况下，它将使用src/index。
+            favicon: './assets/icon.png', // 将给定的favicon路径添加到输出HTML 
+        }),
+    ].concat(isDevMode ?
+        [] :
+        [
+            new MiniCssExtractPlugin({ // 将CSS提取到单独的文件中
+                filename: STATIC_SOURCE_PATH + '/css/[name].[contenthash].css', // 该选项确定每个输出CSS文件的名称。
+            }),
+        ]
+    ),
     // 
     optimization: {
         runtimeChunk: 'single',
+        minimizer: [
+            new CssMinimizerWebpackPlugin()
+        ],
     },
     // webpack-dev-server 提供了一个简单的 web 服务器，并且能够实时重新加载(live reloading)
     devServer: {

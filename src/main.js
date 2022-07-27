@@ -1,4 +1,3 @@
-import './js/animate.js';
-import './js/proxy.js';
+import './js/index.js';
 import './css/index.scss';
 console.log('main')
