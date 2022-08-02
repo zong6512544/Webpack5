@@ -41,6 +41,7 @@ module.exports = {
                     // FALSE.将CSS提取到单独的文件中
                     isDevMode ? 'style-loader' : MiniCssExtractPlugin.loader,
                     'css-loader',
+                    'postcss-loader',
                     'sass-loader'
                 ]
             },
